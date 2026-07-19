@@ -15,6 +15,15 @@ if ($conn->connect_error) {
     http_response_code(500);
     exit('Database connection failed.');
 }
+
+function e($value): string
+{
+    return htmlspecialchars(($value ?? ''), ENT_QUOTES, 'UTF-8');
+}
+
+if (!$SignedIn) {
+    header('Location: ../index.php');
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -60,9 +69,50 @@ if ($conn->connect_error) {
                     <h2>Admin Dashboard</h2>
                     <p>Manage clubs and users</p>
                 </div>
-            </div>
-            <div>
+                <div class="club-panel">
+                    <div class="club-section">
+                        <h2>Select Club</h2>
+                        <label for="club-search" style="display: none">Search Clubs...</label>
+                        <input id="club-search" type="text" class="club-search" placeholder="Search Clubs...">
+                        <div class="club-list">
+                            <label for="club-options" style="display: none">Clubs</label>
+                            <select id="club-options" class="club-options" size="10">
+                                <option value="newentry">Add a new club...</option>
+                                <?php
+                                $sql = "SELECT DirName, Name FROM clubs ORDER BY Name ASC";
+                                $result = $conn->query($sql);
 
+                                if (!$result) {
+                                    die("Query failed: " . $conn->error);
+                                }
+                                if ($result->num_rows > 0) {
+                                    while ($row = $result->fetch_assoc()) {
+                                        echo "<option value='".$row["DirName"]."'>" . $row["Name"] . "</option>";
+                                    }
+                                }
+                                ?>
+                            </select>
+                        </div>
+                        <h2>Banner Preview</h2>
+                        <div class="banner-section">
+                            <div>No Image...</div>
+                        </div>
+                        <h2>Upload Banner</h2>
+                        <div class="banner-upload see-thru">
+                            <label for="banner-input" class="upload-label">
+                                Upload banners in only png format.
+                                <input id="banner-input" type="file" accept="image/png" style="display: none">
+                            </label>
+                        </div>
+                    </div>
+                    <div class="club-section">
+                        <h2>Modify Club</h2>
+                        <div class="form-group">
+                            <div class="form-group-title">Generic Information</div>
+
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -114,3 +164,60 @@ if ($conn->connect_error) {
 </div>
 </body>
 </html>
+<script>
+    const clubOptions = document.getElementById('club-options');
+    const bannerSection = document.querySelector('.banner-section');
+    const bannerInput = document.getElementById('banner-input');
+
+    clubOptions.addEventListener('change', async () => {
+        const DirName = clubOptions.value;
+        updateBannerPreview(DirName, '')
+
+    })
+
+    bannerInput.addEventListener('change', async () => {
+        const DirName = clubOptions.value;
+        const file = bannerInput.files[0];
+
+        if (!file) {
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('type', 'banner')
+        formData.append('file', file);
+        formData.append('dirName', DirName);
+
+        try {
+            const response = await fetch('../post.php', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.text();
+            const status = result.split(',');
+            if (status[0] === 'rei') {
+                updateBannerPreview(DirName, status[1]);
+            } else if (status[0] === 'asuka') {
+                updateBannerPreview(status[1], '');
+                console.log(status[0])
+            } else if (status[0] === 'shinji') {
+                console.error('kaworu');
+            }
+        } catch (error) {
+            console.error('Error uploading banner:', error);
+        }
+    })
+
+    function updateBannerPreview(DirName, version) {
+        if (DirName === 'newentry') {
+            bannerSection.innerHTML = `<div>No Image...</div>`;
+        } else {
+            if (version !== '') {
+                const versionParam = `?v=${version}`;
+                bannerSection.innerHTML = `<img src="../assets/banners/${DirName}.png${versionParam}" alt="Banner Preview">`;
+            } else {
+                bannerSection.innerHTML = `<img src="../assets/banners/${DirName}.png" alt="Banner Preview">`;
+            }
+        }
+    }
+</script>

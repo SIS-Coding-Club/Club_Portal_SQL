@@ -3,6 +3,7 @@ session_start();
 
 $secret = require __DIR__ . '/../auth/secret.php';
 $user = $_SESSION['user'] ?? null;
+$SignedIn = isset($_SESSION['user']);
 
 $host = $secret['host'];
 $username = $secret['username'];
@@ -25,6 +26,10 @@ $result = $stmt->get_result();
 $row = $result->fetch_assoc();
 $role = $row['Role'];
 $admin = $row['AdminFlag'];
+
+if (!$SignedIn) {
+    header('Location: ../index.php');
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

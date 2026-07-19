@@ -15,6 +15,10 @@ if ($conn->connect_error) {
     http_response_code(500);
     exit('Database connection failed.');
 }
+
+if (!$SignedIn) {
+    header('Location: ../index.php');
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

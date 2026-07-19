@@ -655,6 +655,109 @@ body {
     background-color: var(--accent-alt);
 }
 
+.club-panel {
+    margin: 24px 0;
+    display: grid;
+    gap: 20px;
+    grid-template-columns: 1fr 1fr;
+}
+
+.see-thru {
+    background: var(--divider) url(https://www.evastore.jp/img/usr/common/eva_bg-content.png) no-repeat right 0;
+    background-attachment: fixed;
+    background-size: 140% auto;
+    background-position-y: 89px;
+}
+
+.club-section {
+    background-color: var(--primary-white);
+    border-radius: 8px;
+    padding: 18px;
+}
+
+.club-section h2 {
+    font-size: 1.2rem;
+    margin: 0 0 20px;
+    font-weight: normal;
+}
+
+.club-search {
+    margin-bottom: 20px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background-color: var(--divider);
+    font-size: 14px;
+    border: none;
+}
+
+.club-search:focus {
+    outline: none;
+}
+
+.club-list{
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.club-list select{
+    width: 100%;
+    height: 200px;
+    padding: 0;
+    border: none;
+    font-size: 14px;
+}
+
+.club-list select:focus{
+    outline: none;
+}
+
+.club-list select option{
+    padding: 8px 12px;
+    background-color: var(--divider);
+}
+
+.banner-section {
+    background-color: var(--divider);
+    border-radius: 8px;
+    display: grid;
+    aspect-ratio: 2 / 1;
+    place-items: center;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.banner-section img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 3px;
+}
+
+.banner-upload {
+    background-color: var(--divider);
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    padding: 12px;
+}
+
+.upload-label {
+    display: inline-block;
+    padding: 8px 12px;
+    background-color: var(--accent);
+    color: var(--accent-text);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.upload-label:hover {
+    background-color: var(--accent-alt);
+}
+
 #active {
     font-weight: 600;
     color: var(--accent);

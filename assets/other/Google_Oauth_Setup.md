@@ -30,4 +30,7 @@ A Google Cloud project is required to set up the Google Oauth. While I believe u
 4. Rename the file to secret.php. This is to prevent the Google client ID and secret from being exposed in the repository.
 5. Upload the secret.php file to the auth/ directory of the website. Make sure to not commit this file to the repository.
 
+## Additional Information
+The Google Oauth was set up by following [this documentation](https://developers.google.com/identity/protocols/oauth2/web-server). Refer to it when the login functionality requires modifications.
+
 Hopefully, this will be all you need to do to set up the Google Oauth. If you have any questions, feel free to reach out to me through [here](mailto:jayden.oh0102@gmail.com).

@@ -94,7 +94,7 @@ if (!$SignedIn) {
                             </select>
                         </div>
                         <h2>Banner Preview</h2>
-                        <div class="banner-section">
+                        <div class="banner-section see-thru">
                             <div>No Image...</div>
                         </div>
                         <h2>Upload Banner</h2>
@@ -107,9 +107,58 @@ if (!$SignedIn) {
                     </div>
                     <div class="club-section">
                         <h2>Modify Club</h2>
-                        <div class="form-group">
+                        <div class="form-group see-thru">
                             <div class="form-group-title">Generic Information</div>
-
+                            <div class="form-grid">
+                                <label for="club-name">Club Name</label>
+                                <input id="club-name" type="text" class="form-input" placeholder="Club Name">
+                                <label for="club-type">Club Type(s) – Separate by comma with spaces</label>
+                                <input id="club-type" class="form-input" placeholder="Club Types">
+                            </div>
+                        </div>
+                        <div class="form-group see-thru">
+                            <div class="form-group-title">Club Descriptions</div>
+                            <div class="form-grid">
+                                <label for="club-summary">Club Summary – Main page card</label>
+                                <textarea id="club-summary" class="form-input" placeholder="Club Summary"></textarea>
+                                <label for="club-about">Club Description - Detailed description</label>
+                                <textarea id="club-about" class="form-input" placeholder="Club Description"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group see-thru">
+                            <div class="form-group-title">Additional Information</div>
+                            <div class="form-grid">
+                                <label for="club-day">Meeting Day</label>
+                                <select id="club-day" class="form-input">
+                                    <option value="Monday">Monday</option>
+                                    <option value="Wednesday">Wednesday</option>
+                                    <option value="Thursday A">Thursday A</option>
+                                    <option value="Thursday B">Thursday B</option>
+                                    <option value="Friday">Friday</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <label for="club-location">Meeting Location</label>
+                                <input id="club-location" type="text" class="form-input" placeholder="Meeting Location">
+                                <label for="club-members">Member Count</label>
+                                <input id="club-members" type="number" class="form-input" value="0" min="0">
+                            </div>
+                        </div>
+                        <div class="form-group see-thru">
+                            <div class="form-group-title">Contact Information</div>
+                            <div class="form-grid">
+                                <label for="club-advisors">Advisor Email(s) – Separate by comma with spaces</label>
+                                <input id="club-advisors" type="text" class="form-input">
+                                <label for="club-executives">Executive Emails – Separate by comma with spaces</label>
+                                <input id="club-executives" type="text" class="form-input">
+                                <label for="club-instagram">Instagram Handle – Exclude the @ symbol</label>
+                                <input id="club-instagram" type="text" class="form-input" placeholder="sis_tigers">
+                                <label for="club-youtube">YouTube – Include the full URL</label>
+                                <input id="club-youtube" type="text" class="form-input" placeholder="https://www.youtube.com/playlist?list=PLY4AlYc_waYI">
+                                <label for="club-website">Website – Include the full URL</label>
+                                <input id="club-website" type="text" class="form-input" placeholder="https://tigerclubs.org">
+                                <label for="club-social">Extra Socials – Include the full URL</label>
+                                <input id="club-social" type="text" class="form-input" placeholder="https://github.com/JAYDY0102/Club_Portal_SQL">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -168,11 +217,24 @@ if (!$SignedIn) {
     const clubOptions = document.getElementById('club-options');
     const bannerSection = document.querySelector('.banner-section');
     const bannerInput = document.getElementById('banner-input');
+    const nameInput = document.getElementById('club-name');
+    const typeInput = document.getElementById('club-type');
+    const summaryInput = document.getElementById('club-summary');
+    const aboutInput = document.getElementById('club-about');
+    const dayInput = document.getElementById('club-day');
+    const locationInput = document.getElementById('club-location');
+    const membersInput = document.getElementById('club-members');
+    const advisorsInput = document.getElementById('club-advisors');
+    const executivesInput = document.getElementById('club-executives');
+    const instagramInput = document.getElementById('club-instagram');
+    const youtubeInput = document.getElementById('club-youtube');
+    const websiteInput = document.getElementById('club-website');
+    const socialInput = document.getElementById('club-social');
 
     clubOptions.addEventListener('change', async () => {
         const DirName = clubOptions.value;
         updateBannerPreview(DirName, '')
-
+        updateClubInformation(DirName)
     })
 
     bannerInput.addEventListener('change', async () => {
@@ -194,14 +256,17 @@ if (!$SignedIn) {
                 body: formData
             });
             const result = await response.text();
-            const status = result.split(',');
+            const status = result.split(', ');
             if (status[0] === 'rei') {
                 updateBannerPreview(DirName, status[1]);
+                console.log(status[0],status[1])
             } else if (status[0] === 'asuka') {
                 updateBannerPreview(status[1], '');
-                console.log(status[0])
-            } else if (status[0] === 'shinji') {
-                console.error('kaworu');
+                console.log(status[0],status[1])
+            } else if (status[0] === 'shinji-01') {
+                console.error('kaworu',status[1]);
+            } else if (status[0] === 'shinji-13') {
+                console.error('mari',status[1]);
             }
         } catch (error) {
             console.error('Error uploading banner:', error);
@@ -218,6 +283,45 @@ if (!$SignedIn) {
             } else {
                 bannerSection.innerHTML = `<img src="../assets/banners/${DirName}.png" alt="Banner Preview">`;
             }
+        }
+    }
+
+    async function updateClubInformation(DirName) {
+        const formData = new FormData();
+        formData.append('type', 'club')
+        formData.append('dirName', DirName);
+
+        try {
+            const response = await fetch('../post.php', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.text();
+            const status = result.split(';');
+            if (status[0] === 'rei') {
+                console.log(status[0])
+                nameInput.value = status[1];
+                typeInput.value = status[2];
+                summaryInput.value = status[3];
+                aboutInput.value = status[4];
+                dayInput.value = status[5];
+                locationInput.value = status[6];
+                membersInput.value = status[7];
+                advisorsInput.value = status[8];
+                executivesInput.value = status[9];
+                instagramInput.value = status[10];
+                youtubeInput.value = status[11];
+                websiteInput.value = status[12];
+                socialInput.value = status[13];
+            } else if (status[0] === 'shinji-01') {
+                console.error('kaworu','query failed');
+            } else if (status[0] === 'shinji-13') {
+                console.error('mari','query failed');
+            } else {
+                console.error('unknown error');
+            }
+        } catch (error) {
+            console.error('Error updating club information:', error);
         }
     }
 </script>

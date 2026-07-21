@@ -660,6 +660,7 @@ body {
     display: grid;
     gap: 20px;
     grid-template-columns: 1fr 1fr;
+    align-items: stretch;
 }
 
 .see-thru {
@@ -673,6 +674,8 @@ body {
     background-color: var(--primary-white);
     border-radius: 8px;
     padding: 18px;
+    display: flex;
+    flex-direction: column;
 }
 
 .club-section h2 {
@@ -741,6 +744,7 @@ body {
     place-items: center;
     padding: 12px;
     margin-bottom: 20px;
+    flex: 1;
 }
 
 .upload-label {

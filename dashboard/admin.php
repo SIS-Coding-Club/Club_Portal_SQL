@@ -76,7 +76,7 @@ if (!$SignedIn) {
                         <input id="club-search" type="text" class="club-search" placeholder="Search Clubs...">
                         <div class="club-list">
                             <label for="club-options" style="display: none">Clubs</label>
-                            <select id="club-options" class="club-options" size="10">
+                            <select id="club-options" class="club-options see-thru" size="10">
                                 <option value="newentry">Add a new club...</option>
                                 <?php
                                 $sql = "SELECT DirName, Name FROM clubs ORDER BY Name ASC";
@@ -98,16 +98,16 @@ if (!$SignedIn) {
                             <div>No Image...</div>
                         </div>
                         <h2>Upload Banner</h2>
-                        <div class="banner-upload see-thru">
+                        <div class="banner-upload see-thru" style="margin-bottom: 57px">
                             <label for="banner-input" class="upload-label">
                                 Upload banners in only png format.
                                 <input id="banner-input" type="file" accept="image/png" style="display: none">
                             </label>
                         </div>
                         <h2 style="display: none" id="club-dir-title">Directory Name</h2>
-                        <div class="form-group see-thru" id="club-dir-section" style="display: none">
+                        <div class="form-group see-thru" id="club-dir-section" style="display: none; margin-bottom: 0">
                             <div class="form-grid">
-                                <label for="club-dir-name">Directory Name – DO NOT USE UNLESS NECESSARY</label>
+                                <label for="club-dir-name">Directory Name – CAUTION</label>
                                 <input id="club-dir-name" type="text" class="form-input" placeholder="Directory Name">
                             </div>
                         </div>
@@ -228,6 +228,7 @@ if (!$SignedIn) {
     const clubOptions = document.getElementById('club-options');
     const bannerSection = document.querySelector('.banner-section');
     const bannerInput = document.getElementById('banner-input');
+    const bannerUpload = document.querySelector('.banner-upload');
     const nameInput = document.getElementById('club-name');
     const typeInput = document.getElementById('club-type');
     const summaryInput = document.getElementById('club-summary');
@@ -246,6 +247,7 @@ if (!$SignedIn) {
     const clubDirName = document.getElementById('club-dir-name');
     const saveBtn = document.getElementById('save-btn');
     const deleteBtn = document.getElementById('delete-btn');
+    const clubSearch = document.getElementById('club-search');
     let tmpBanner = '';
 
     clubOptions.addEventListener('change', async () => {
@@ -352,6 +354,20 @@ if (!$SignedIn) {
         }
     })
 
+    clubSearch.addEventListener('input', () => {
+        const searchTerm = clubSearch.value.toLowerCase();
+        const clubOptions = document.getElementById('club-options');
+
+        Array.from(clubOptions.options).forEach(club => {
+            const clubName = club.textContent.toLowerCase();
+            if (clubName.includes(searchTerm)) {
+                club.style.display = 'block';
+            } else {
+                club.style.display = 'none';
+            }
+        })
+    })
+
     function updateBannerPreview(DirName, version) {
         if (DirName === 'newentry') {
             bannerSection.innerHTML = `<div>No Image...</div>`;
@@ -396,6 +412,7 @@ if (!$SignedIn) {
                 clubDirSection.style.display = "none";
                 saveBtn.innerHTML = "Save Changes";
                 deleteBtn.innerHTML = "Delete Club";
+                bannerUpload.style.marginBottom = "57px"
             } else if (status[0] === 'asuka'){
                 console.log(status[0])
                 nameInput.value = '';
@@ -415,6 +432,7 @@ if (!$SignedIn) {
                 clubDirSection.style.display = "block";
                 saveBtn.innerHTML = "Add Club";
                 deleteBtn.innerHTML = "Reset Form";
+                bannerUpload.style.marginBottom = "20px"
             } else if (status[0] === 'shinji-01') {
                 console.error('kaworu','query failed');
             } else if (status[0] === 'shinji-13') {
@@ -452,6 +470,7 @@ if (!$SignedIn) {
             const status = result.split(';');
             if (status[0] === 'rei') {
                 console.log(status[0])
+                alert('Club information updated successfully');
                 window.location.reload();
             } else if (status[0] === 'shinji-01') {
                 console.log('kaworu',status[1])
@@ -502,6 +521,7 @@ if (!$SignedIn) {
             if (status[1] === 'asuka') {
                 console.log(status[1])
                 console.log(status[2])
+                alert('Club added successfully');
                 window.location.reload();
             } else if (status[1] === 'shinji-13') {
                 console.log('mari')

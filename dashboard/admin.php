@@ -104,6 +104,13 @@ if (!$SignedIn) {
                                 <input id="banner-input" type="file" accept="image/png" style="display: none">
                             </label>
                         </div>
+                        <h2 style="display: none" id="club-dir-title">Directory Name</h2>
+                        <div class="form-group see-thru" id="club-dir-section" style="display: none">
+                            <div class="form-grid">
+                                <label for="club-dir-name">Directory Name – DO NOT USE UNLESS NECESSARY</label>
+                                <input id="club-dir-name" type="text" class="form-input" placeholder="Directory Name">
+                            </div>
+                        </div>
                     </div>
                     <div class="club-section">
                         <h2>Modify Club</h2>
@@ -159,6 +166,10 @@ if (!$SignedIn) {
                                 <label for="club-social">Extra Socials – Include the full URL</label>
                                 <input id="club-social" type="text" class="form-input" placeholder="https://github.com/JAYDY0102/Club_Portal_SQL">
                             </div>
+                        </div>
+                        <div class="form-btn-group">
+                            <div class="form-btn" id="save-btn">Save Changes</div>
+                            <div class="form-btn" id="delete-btn">Delete Club</div>
                         </div>
                     </div>
                 </div>
@@ -230,11 +241,76 @@ if (!$SignedIn) {
     const youtubeInput = document.getElementById('club-youtube');
     const websiteInput = document.getElementById('club-website');
     const socialInput = document.getElementById('club-social');
+    const clubDirTitle = document.getElementById('club-dir-title');
+    const clubDirSection = document.getElementById('club-dir-section');
+    const clubDirName = document.getElementById('club-dir-name');
+    const saveBtn = document.getElementById('save-btn');
+    const deleteBtn = document.getElementById('delete-btn');
+    let tmpBanner = '';
 
     clubOptions.addEventListener('change', async () => {
         const DirName = clubOptions.value;
         updateBannerPreview(DirName, '')
-        updateClubInformation(DirName)
+        await fetchClubInformation(DirName)
+    })
+
+    saveBtn.addEventListener('click', async () => {
+        let DirName = clubOptions.value;
+        if (DirName === 'newentry') {
+            const NewDirName = clubDirName.value;
+            if (NewDirName === '') {
+                await addClub(DirName)
+            } else {
+                DirName = NewDirName;
+                await addClub(DirName)
+            }
+        } else {
+            console.log(DirName)
+            try {
+                await updateClubInformation(DirName)
+            } catch (error) {
+                console.error('Error in updateClubInformation:', error);
+            }
+        }
+    })
+
+    deleteBtn.addEventListener('click', async () => {
+        let DirName = clubOptions.value;
+        if (DirName === 'newentry'){
+            nameInput.value = '';
+            typeInput.value = '';
+            summaryInput.value = '';
+            aboutInput.value = '';
+            dayInput.value = 'Monday';
+            locationInput.value = '';
+            membersInput.value = '';
+            advisorsInput.value = '';
+            executivesInput.value = '';
+            instagramInput.value = '';
+            youtubeInput.value = '';
+            websiteInput.value = '';
+            socialInput.value = '';
+        } else {
+            formData = new FormData();
+            formData.append('RequestType', 'club-delete')
+            formData.append('DirName', DirName);
+            try {
+                const response = await fetch('../post.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.text();
+                const status = result.split(';');
+                if (status[0] === 'rei') {
+                    console.log(status[0],status[1])
+                    window.location.reload()
+                } else if (status[0] === 'shinji-01') {
+                    console.error('kaworu',status[1]);
+                }
+            } catch (error) {
+                console.error('Error deleting club:', error);
+            }
+        }
     })
 
     bannerInput.addEventListener('change', async () => {
@@ -246,9 +322,9 @@ if (!$SignedIn) {
         }
 
         const formData = new FormData();
-        formData.append('type', 'banner')
-        formData.append('file', file);
-        formData.append('dirName', DirName);
+        formData.append('RequestType', 'Banner')
+        formData.append('File', file);
+        formData.append('DirName', DirName);
 
         try {
             const response = await fetch('../post.php', {
@@ -256,17 +332,20 @@ if (!$SignedIn) {
                 body: formData
             });
             const result = await response.text();
-            const status = result.split(', ');
+            const status = result.split(';');
             if (status[0] === 'rei') {
                 updateBannerPreview(DirName, status[1]);
                 console.log(status[0],status[1])
             } else if (status[0] === 'asuka') {
                 updateBannerPreview(status[1], '');
-                console.log(status[0],status[1])
+                tmpBanner = status[1];
+                console.log(status[0],tmpBanner)
             } else if (status[0] === 'shinji-01') {
                 console.error('kaworu',status[1]);
             } else if (status[0] === 'shinji-13') {
                 console.error('mari',status[1]);
+            } else if (status[0] === 'asuka-a'){
+                console.error('asuka-a','fail');
             }
         } catch (error) {
             console.error('Error uploading banner:', error);
@@ -286,10 +365,10 @@ if (!$SignedIn) {
         }
     }
 
-    async function updateClubInformation(DirName) {
+    async function fetchClubInformation(DirName) {
         const formData = new FormData();
-        formData.append('type', 'club')
-        formData.append('dirName', DirName);
+        formData.append('RequestType', 'club-fetch')
+        formData.append('DirName', DirName);
 
         try {
             const response = await fetch('../post.php', {
@@ -313,6 +392,29 @@ if (!$SignedIn) {
                 youtubeInput.value = status[11];
                 websiteInput.value = status[12];
                 socialInput.value = status[13];
+                clubDirTitle.style.display = "none";
+                clubDirSection.style.display = "none";
+                saveBtn.innerHTML = "Save Changes";
+                deleteBtn.innerHTML = "Delete Club";
+            } else if (status[0] === 'asuka'){
+                console.log(status[0])
+                nameInput.value = '';
+                typeInput.value = '';
+                summaryInput.value = '';
+                aboutInput.value = '';
+                dayInput.value = 'Monday';
+                locationInput.value = '';
+                membersInput.value = '';
+                advisorsInput.value = '';
+                executivesInput.value = '';
+                instagramInput.value = '';
+                youtubeInput.value = '';
+                websiteInput.value = '';
+                socialInput.value = '';
+                clubDirTitle.style.display = "block";
+                clubDirSection.style.display = "block";
+                saveBtn.innerHTML = "Add Club";
+                deleteBtn.innerHTML = "Reset Form";
             } else if (status[0] === 'shinji-01') {
                 console.error('kaworu','query failed');
             } else if (status[0] === 'shinji-13') {
@@ -322,6 +424,91 @@ if (!$SignedIn) {
             }
         } catch (error) {
             console.error('Error updating club information:', error);
+        }
+    }
+    async function updateClubInformation(DirName) {
+        const formData = new FormData();
+        formData.append('RequestType', 'club-update')
+        formData.append('Name', nameInput.value);
+        formData.append('Type', typeInput.value);
+        formData.append('MemberCount', membersInput.value);
+        formData.append('MeetDay', dayInput.value);
+        formData.append('Location', locationInput.value);
+        formData.append('Summary', summaryInput.value);
+        formData.append('About', aboutInput.value);
+        formData.append('Instagram', instagramInput.value);
+        formData.append('Youtube', youtubeInput.value);
+        formData.append('Website', websiteInput.value);
+        formData.append('Social', socialInput.value);
+        formData.append('Advisors', advisorsInput.value);
+        formData.append('Executives', executivesInput.value);
+        formData.append('DirName', DirName);
+        try {
+            const response = await fetch('../post.php', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.text();
+            const status = result.split(';');
+            if (status[0] === 'rei') {
+                console.log(status[0])
+                window.location.reload();
+            } else if (status[0] === 'shinji-01') {
+                console.log('kaworu',status[1])
+            }
+        } catch (error) {
+            console.error('Error updating club information:', error);
+        }
+    }
+    async function addClub(DirName) {
+        const formData = new FormData();
+        formData.append('RequestType', 'club-add')
+        if (DirName === 'newentry') {
+            if (tmpBanner !== '') {
+                formData.append('DirName', tmpBanner);
+            } else {
+                formData.append('DirName', DirName);
+            }
+        } else {
+            formData.append('DirName', DirName);
+        }
+        formData.append('Name', nameInput.value);
+        formData.append('Type', typeInput.value);
+        formData.append('MemberCount', membersInput.value);
+        formData.append('MeetDay', dayInput.value);
+        formData.append('Location', locationInput.value);
+        formData.append('Summary', summaryInput.value);
+        formData.append('About', aboutInput.value);
+        formData.append('Instagram', instagramInput.value);
+        formData.append('Youtube', youtubeInput.value);
+        formData.append('Website', websiteInput.value);
+        formData.append('Social', socialInput.value);
+        formData.append('Advisors', advisorsInput.value);
+        formData.append('Executives', executivesInput.value);
+        formData.append('Banner', tmpBanner)
+        try {
+            const response = await fetch('../post.php', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.text();
+            console.log("Server response:", result);
+            const status = result.split(';');
+            if (status[0] === 'rei') {
+                console.log(status[0])
+            } else if (status[0] === 'shinji-01'){
+                console.log('kaworu')
+            }
+            if (status[1] === 'asuka') {
+                console.log(status[1])
+                console.log(status[2])
+                window.location.reload();
+            } else if (status[1] === 'shinji-13') {
+                console.log('mari')
+                console.log(status[2])
+            }
+        } catch (error) {
+            console.error('Error adding club:', error);
         }
     }
 </script>

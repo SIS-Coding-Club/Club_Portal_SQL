@@ -718,11 +718,13 @@ body {
 }
 
 .banner-section {
+    display: grid;
     border-radius: 8px;
     aspect-ratio: 2 / 1;
     place-items: center;
     overflow: hidden;
     margin-bottom: 20px;
+    text-align: center;
 }
 
 .banner-section img {
@@ -738,6 +740,7 @@ body {
     display: grid;
     place-items: center;
     padding: 12px;
+    margin-bottom: 20px;
 }
 
 .upload-label {
@@ -785,6 +788,26 @@ body {
     background-color: var(--primary-white);
     font-size: 14px;
     resize: none;
+}
+
+.form-btn-group {
+    display: flex;
+    gap: 20px;
+    justify-content: flex-end;
+}
+
+.form-btn {
+    padding: 8px 12px;
+    border-radius: 8px;
+    background-color: var(--accent);
+    color: var(--accent-text);
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.form-btn:hover {
+    background-color: var(--accent-alt);
 }
 
 #active {

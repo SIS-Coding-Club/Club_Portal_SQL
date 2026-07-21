@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 $secret = require __DIR__ . '/auth/secret.php';
 $host = $secret['host'];
 $username = $secret['username'];
@@ -17,68 +20,163 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$type = $_POST['type'];
-if ($type == 'banner') {
-    if (!isset($_FILES['file'])|| !isset($_POST['dirName'])) {
+$RequestType = $_POST['RequestType'] ?? '';
+
+if ($RequestType == 'Banner') {
+    if (!isset($_FILES['File']) || !isset($_POST['DirName'])) {
         http_response_code(400);
-        echo "No file payload received/directory name not provided.";
+        echo "asuka-a";
         exit;
     }
-    $file = $_FILES['file'];
-    $dirName = $_POST['dirName'];
-
+    $File = $_FILES['File'];
+    $DirName = $_POST['DirName'];
     $uploadDir = 'assets/banners/';
 
-    if ($dirName === 'newentry') {
-        $randomName = 'tmp-'.bin2hex(random_bytes(16));
+    if ($DirName === 'newentry') {
+        $randomName = 'tmp-' . bin2hex(random_bytes(16));
         $fileName = $randomName . '.png';
         $uploadPath = $uploadDir . $fileName;
-        if (move_uploaded_file($file['tmp_name'], $uploadPath)){
-            echo "asuka,".$randomName;
+        if (move_uploaded_file($File['tmp_name'], $uploadPath)) {
+            echo "asuka;" . $randomName;
         } else {
             http_response_code(500);
             echo "shinji-01";
         }
     } else {
-        $fileName = $dirName . '.png';
+        $fileName = $DirName . '.png';
         $uploadPath = $uploadDir . $fileName;
-        if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
-            echo "rei,".time();
+        if (move_uploaded_file($File['tmp_name'], $uploadPath)) {
+            echo "rei;" . time();
         } else {
             http_response_code(500);
-            echo "shinji-13".$uploadPath;
+            echo "shinji-13;" . $uploadPath;
         }
     }
-} else if ($type == 'club') {
-    $dirName = $_POST['dirName'];
-    if ($dirName === 'newentry') {
+} else if ($RequestType == 'club-fetch') {
+    $DirName = $_POST['DirName'] ?? '';
+    if ($DirName === 'newentry') {
         echo "asuka";
     } else {
-        $sql = "SELECT * FROM clubs WHERE DirName = '$dirName'";
-        $result = $conn->query($sql);
-        if (!$result) {
-            echo "shinji-01";
+        $stmt = $conn->prepare("SELECT * FROM clubs WHERE DirName = ?");
+        $stmt->bind_param("s", $DirName);
+        if (!$stmt->execute()) {
+            echo "shinji-01;Query failed";
+            exit;
         }
+        $result = $stmt->get_result();
         $row = $result->fetch_assoc();
-        $Name = $row['Name'];
-        $ClubTypes = $row['ClubType'];
-        $Summary = $row['Summary'];
-        $About = $row['About'];
-        $MeetDay = $row['MeetDay'];
-        $Location = $row['Location'];
-        $MemberCount = $row['MemberCount'];
-        $Advisors = $row['Advisors'];
-        $Executives = $row['Executives'];
-        $Instagram = $row['Instagram'];
-        $Youtube = $row['Youtube'];
-        $Website = $row['Website'];
-        $Social = $row['Social'];
-        $response = $Name . ';' . $ClubTypes . ';' . $Summary . ';' . $About . ';' . $MeetDay . ';' . $Location . ';' . $MemberCount . ';' . $Advisors . ';' . $Executives . ';' . $Instagram . ';' . $Youtube . ';' . $Website . ';' . $Social;
-        if ($response !== '') {
-            echo "rei;".$response;
-        } else {
-            echo "shinji-13";
+
+        if (!$row) {
+            echo "shinji-13;Club not found";
+            exit;
         }
+
+        $response = $row['Name'] . ';' . $row['ClubType'] . ';' . $row['Summary'] . ';' . $row['About']
+            . ';' . $row['MeetDay'] . ';' . $row['Location'] . ';' . $row['MemberCount']
+            . ';' . $row['Advisors'] . ';' . $row['Executives'] . ';' . $row['Instagram']
+            . ';' . $row['Youtube'] . ';' . $row['Website'] . ';' . $row['Social'];
+        echo "rei;" . $response;
+        $stmt->close();
+    }
+} else if ($RequestType == 'club-update') {
+    $DirName = $_POST['DirName'] ?? '';
+    $Name = $_POST['Name'] ?? '';
+    $Type = $_POST['Type'] ?? '';
+    $MemberCount = $_POST['MemberCount'] ?? 0;
+    $MeetDay = $_POST['MeetDay'] ?? '';
+    $Location = $_POST['Location'] ?? '';
+    $Summary = $_POST['Summary'] ?? '';
+    $About = $_POST['About'] ?? '';
+    $Instagram = $_POST['Instagram'] ?? '';
+    $Youtube = $_POST['Youtube'] ?? '';
+    $Website = $_POST['Website'] ?? '';
+    $Social = $_POST['Social'] ?? '';
+    $Advisors = $_POST['Advisors'] ?? '';
+    $Executives = $_POST['Executives'] ?? '';
+
+    $stmt = $conn->prepare("UPDATE clubs SET Name = ?, ClubType = ?, MemberCount = ?, MeetDay = ?, Location = ?, Summary = ?, About = ?, Instagram = ?, Youtube = ?, Website = ?, Social = ?, Advisors = ?, Executives = ? WHERE DirName = ?");
+    $stmt->bind_param(
+        "ssisssssssssss",
+        $Name, $Type, $MemberCount, $MeetDay, $Location, $Summary, $About,
+        $Instagram, $Youtube, $Website, $Social, $Advisors, $Executives, $DirName
+    );
+    if ($stmt->execute()) {
+        echo "rei;Club updated successfully!";
+    } else {
+        echo "shinji-01;" . $stmt->error;
+    }
+} else if ($RequestType == 'club-add') {
+    $DirName = $_POST['DirName'] ?? '';
+    $Name = $_POST['Name'] ?? '';
+    $Type = $_POST['Type'] ?? '';
+    $MemberCount = $_POST['MemberCount'] ?? 0;
+    $MeetDay = $_POST['MeetDay'] ?? '';
+    $Location = $_POST['Location'] ?? '';
+    $Summary = $_POST['Summary'] ?? '';
+    $About = $_POST['About'] ?? '';
+    $Instagram = $_POST['Instagram'] ?? '';
+    $Youtube = $_POST['Youtube'] ?? '';
+    $Website = $_POST['Website'] ?? '';
+    $Social = $_POST['Social'] ?? '';
+    $Advisors = $_POST['Advisors'] ?? '';
+    $Executives = $_POST['Executives'] ?? '';
+    $tmpBanner = $_POST['Banner'] ?? '';
+
+    $response = '';
+
+    if ($DirName === 'newentry') {
+        $DirName = 'club-' . bin2hex(random_bytes(8));
+    }
+
+    if ($tmpBanner !== '') {
+        $originPath = 'assets/banners/' . $tmpBanner . '.png';
+        $destPath = 'assets/banners/' . $DirName . '.png';
+
+        if (file_exists($originPath)) {
+            if (rename($originPath, $destPath)) {
+                $response .= "banner-success;";
+            } else {
+                $response .= "banner-fail;";
+            }
+        } else {
+            $response .= "banner-missing;";
+        }
+    } else {
+        $response .= "no-banner;";
+    }
+
+    $stmt = $conn->prepare("INSERT INTO clubs(DirName, Name, ClubType, MemberCount, MeetDay, Location, Summary, About, Instagram, Youtube, Website, Social, Advisors, Executives) 
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+    if (!$stmt) {
+        $response .= "prepare-fail;" . $conn->error;
+        echo $response;
+        exit;
+    }
+
+    $stmt->bind_param(
+        "sssissssssssss",
+        $DirName, $Name, $Type, $MemberCount, $MeetDay, $Location, $Summary, $About,
+        $Instagram, $Youtube, $Website, $Social, $Advisors, $Executives
+    );
+
+    if ($stmt->execute()) {
+        $response .= "asuka;New club added successfully!";
+    } else {
+        $response .= "shinji-13;" . $stmt->error;
+    }
+
+    echo $response;
+    $stmt->close();
+} else if ($RequestType == 'club-delete') {
+    $DirName = $_POST['DirName'] ?? '';
+    $stmt = $conn->prepare("DELETE FROM clubs WHERE DirName = ?");
+    $stmt->bind_param("s", $DirName);
+    if ($stmt->execute()) {
+        echo "rei;Club deleted successfully!";
+    } else {
+        echo "shinji-01;" . $stmt->error;
     }
 }
 
+$conn->close();

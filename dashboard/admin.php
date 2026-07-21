@@ -330,24 +330,28 @@ if ($SignedIn) {
             websiteInput.value = '';
             socialInput.value = '';
         } else {
-            const formData = new FormData();
-            formData.append('RequestType', 'club-delete')
-            formData.append('DirName', DirName);
-            try {
-                const response = await fetch('../post.php', {
-                    method: 'POST',
-                    body: formData
-                });
-                const result = await response.text();
-                const status = result.split(';');
-                if (status[0] === 'rei') {
-                    console.log(status[0],status[1])
-                    window.location.reload()
-                } else if (status[0] === 'shinji-01') {
-                    console.error('kaworu',status[1]);
+            let confirmDelete = confirm("Are you sure you want to delete this club?");
+            if (confirmDelete) {
+                const formData = new FormData();
+                formData.append('RequestType', 'club-delete')
+                formData.append('DirName', DirName);
+                try {
+                    const response = await fetch('../post.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const result = await response.text();
+                    const status = result.split(';');
+                    if (status[0] === 'rei') {
+                        console.log(status[0],status[1])
+                        alert('Club deleted successfully');
+                        window.location.reload()
+                    } else if (status[0] === 'shinji-01') {
+                        console.error('kaworu',status[1]);
+                    }
+                } catch (error) {
+                    console.error('Error deleting club:', error);
                 }
-            } catch (error) {
-                console.error('Error deleting club:', error);
             }
         }
     })

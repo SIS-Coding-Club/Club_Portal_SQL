@@ -66,17 +66,77 @@ if (!$SignedIn) {
                    class="sis-bar-item sis-padding-16 sis-button">Dashboard</a>
             <?php endif; ?>
         </nav>
+        <a id="inactive" class="sis-bar-item sis-button sis-padding-16 mobile-menu" data-state="closed">
+            Menu ▾
+        </a>
+        <div class="spacer sis-bar-item">
+            <div class="space-inner"></div>
+        </div>
         <div class="tnb-right-section">
-            <a href="../auth/signout.php">
-                <div id="tnb-sign-btn" class="tnb-sign-btn sis-bar-item sis-right sis-button"
-                     title="Sign in to your account">
-                    <span class="button-text">Sign Out</span>
-                </div>
-            </a>
+            <div id="tnb-sign-btn" class="tnb-sign-btn sis-bar-item sis-right sis-button"
+                 title="Sign out of your account" onClick="window.location.href='auth/signout.php'">
+                <span class="button-text">Sign Out</span>
+            </div>
             <a href="../assets/site_images/fair_map.png" class="tnb-right-side-btn sis-bar-item sis-button sis-right"
                title="Club Fair Map" aria-label="Club Fair Map">Fair Map</a>
         </div>
     </div>
+    <nav id="tnb-mobile-nav" class="tnb-mobile-nav">
+        <div class="mobile-container">
+            <div class="tnb-mobile-nav-section" data-section="home" onClick="window.location.href='../index.php'">
+                <div class="sis-button">
+                    <span class="tnb-title">Home</span>
+                </div>
+            </div>
+            <div class="tnb-mobile-nav-section" data-section="feed" onClick="window.location.href='../feed'">
+                <div class="sis-button">
+                    <span class="tnb-title">Feed</span>
+                </div>
+            </div>
+            <div class="tnb-mobile-nav-section" data-section="calendar" onClick="window.location.href='../calendar'">
+                <div class="sis-button">
+                    <span class="tnb-title">Calendar</span>
+                </div>
+            </div>
+            <?php if ($admin == '1'): ?>
+                <div class="tnb-mobile-nav-section" data-section="admin"
+                     onClick="window.location.href='../dashboard/admin.php'">
+                    <div class="sis-button">
+                        <span class="tnb-title">Admin Dashboard</span>
+                    </div>
+                </div>
+            <?php elseif ($role == 'advisor'): ?>
+                <div class="tnb-mobile-nav-section" data-section="advisor"
+                     onClick="window.location.href='../dashboard/advisor.php'">
+                    <div class="sis-button">
+                        <span class="tnb-title">Advisor Dashboard</span>
+                    </div>
+                </div>
+            <?php elseif ($role == 'executive'): ?>
+                <div class="tnb-mobile-nav-section" data-section="executive"
+                     onClick="window.location.href='../dashboard/executive.php'">
+                    <div class="sis-button">
+                        <span class="tnb-title">Executive Dashboard</span>
+                    </div>
+                </div>
+            <?php else: ?>
+                <div class="tnb-mobile-nav-section" data-section="dashboard"
+                     onClick="alert('You do not have permissions to use the Dashboard')">
+                    <div class="sis-button">
+                        <span class="tnb-title">Dashboard</span>
+                    </div>
+                </div>
+            <?php endif; ?>
+            <div class="tnb-mobile-nav-section" data-section="fairmap" onClick="window.location.href='../assets/site_images/fair_map.png'">
+                <div class="sis-button">
+                    <span class="tnb-title">Club Fair Map</span>
+                </div>
+            </div>
+        </div>
+        <div class="sis-button tnb-close-btn">
+            <span>×</span>
+        </div>
+    </nav>
 </div>
 <div class="topnavbackground"></div>
 <div class="topnavcontainer">
@@ -156,3 +216,27 @@ if (!$SignedIn) {
         </div>
     </div>
 </div>
+<script>
+    const mobileMenu = document.querySelector('.mobile-menu');
+    const mobileNav = document.querySelector('.tnb-mobile-nav');
+    const closeNav = document.querySelector('.tnb-close-btn');
+
+    mobileMenu.addEventListener('click', () => {
+        const state = mobileMenu.getAttribute('data-state');
+        if (state === 'closed') {
+            mobileMenu.innerHTML = 'Menu ▴';
+            mobileMenu.setAttribute('data-state', 'open');
+            mobileNav.style.display = 'block';
+        } else if (state === 'open') {
+            mobileMenu.innerHTML = 'Menu ▾';
+            mobileMenu.setAttribute('data-state', 'closed');
+            mobileNav.style.display = 'none';
+        }
+    })
+
+    closeNav.addEventListener('click', () => {
+        mobileMenu.innerHTML = 'Menu ▾';
+        mobileMenu.setAttribute('data-state', 'closed');
+        mobileNav.style.display = 'none';
+    })
+</script>

@@ -87,6 +87,28 @@ body {
     display: block;
 }
 
+#top-nav-bar .mobile-menu {
+    width: 93px;
+    display: none;
+}
+
+@media (max-width: 688px) {
+    #top-nav-bar .mobile-menu {
+        display: block;
+    }
+}
+
+.spacer {
+    position: relative;
+    display: block;
+    padding: 10px 8px;
+}
+
+.space-inner {
+    width: 36px;
+    height: 36px;
+}
+
 #top-nav-bar .tnb-mobile-nav {
     display: none;
     position: fixed;
@@ -103,6 +125,73 @@ body {
     cursor: default;
     background-color: var(--primary-white);
     color: var(--primary-text);
+}
+
+@media (max-width: 688px) {
+    #top-nav-bar .tnb-mobile-nav > .mobile-container {
+        padding-top: 70px !important;
+        padding-bottom: 20px !important;
+        position: relative;
+        height: 100%;
+        padding: 84px 0 100px 0;
+    }
+}
+
+#top-nav-bar .tnb-mobile-nav > .mobile-container > .tnb-mobile-nav-section > .sis-button {
+    position: relative;
+    width: 100%;
+    border-bottom: 1px solid var(--primary-black);
+    padding: 20px 30px;
+    text-align: left;
+}
+
+.tnb-title {
+    font-size: 21px;
+    line-height: 26px;
+    font-weight: normal;
+    display: inline-block;
+}
+
+.tnb-close-btn {
+    display: block;
+    width: 64px;
+    height: 64px;
+    padding: 0;
+}
+
+.tnb-close-btn > span {
+    position: absolute;
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    font-size: 48px;
+    top: 50%;
+    margin-top: -12px;
+    left: 50%;
+    margin-left: -12px;
+}
+
+@media (max-width: 688px) {
+    #top-nav-bar .tnb-close-btn {
+        position: absolute !important;
+        top: 10px !important;
+        right: 10px !important;
+        z-index: 10;
+    }
+}
+
+@media (max-width: 688px) {
+    #top-nav-bar .tnb-desktop-nav {
+        display: none;
+    }
+}
+
+@media (max-width: 688px) {
+    #top-nav-bar .tnb-mobile-nav {
+        top: 56px !important;
+        height: calc(100% - 56px) !important;
+    }
 }
 
 #top-nav-bar .tnb-right-section {
@@ -160,19 +249,6 @@ body {
 
 #count {
     min-width: 100px;
-}
-
-@media (max-width: 688px) {
-    #top-nav-bar .tnb-desktop-nav {
-        display: none;
-    }
-}
-
-@media (max-width: 688px) {
-    #top-nav-bar .tnb-mobile-nav {
-        top: 56px !important;
-        height: calc(100% - 56px) !important;
-    }
 }
 
 .primary-white {
@@ -405,11 +481,15 @@ body {
 
 .filter-row {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 8px;
+    overflow-x: auto;
+    max-height: 36px;
+    -webkit-overflow-scrolling: touch;
 }
 
 .chip {
+    white-space: nowrap;
     font-family: unified, sans-serif;
     border: 0;
     background: var(--primary-white);
